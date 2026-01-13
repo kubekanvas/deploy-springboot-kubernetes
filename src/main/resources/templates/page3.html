@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>KubeKanvas Links</title>
+    <style>
+        body { background: #1a1a2e; color: white; font-family: sans-serif; padding: 50px; }
+        .card-container { display: grid; gap: 20px; }
+        .link-card { background: #0f3460; padding: 20px; border-left: 5px solid #e94560; border-radius: 4px; }
+        a { color: #4ecca3; text-decoration: none; font-size: 1.2em; }
+        a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+<h1>KubeKanvas Resources</h1>
+<div class="card-container">
+    <div th:each="link : ${links}" class="link-card">
+        <a th:href="${link.url}" th:text="${link.url}" target="_blank">URL</a>
+    </div>
+</div>
+</body>
+</html>

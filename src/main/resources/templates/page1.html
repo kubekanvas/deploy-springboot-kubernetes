@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>KubeKanvas - Start</title>
+    <style>
+        body { background: #1a1a2e; color: white; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        button { padding: 15px 30px; background: #0f3460; color: #e94560; border: 2px solid #e94560; cursor: pointer; border-radius: 5px; font-weight: bold; }
+    </style>
+</head>
+<body>
+<button onclick="askName()">Enter KubeKanvas</button>
+
+<script>
+    function askName() {
+        let name = prompt("Please enter your name:");
+        if (name) {
+            window.location.href = "/welcome?name=" + encodeURIComponent(name);
+        }
+    }
+</script>
+</body>
+</html>

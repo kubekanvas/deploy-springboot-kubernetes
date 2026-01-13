@@ -1,0 +1,125 @@
+# ---------------------------------------------------------
+# 1. DATABASE SECRET
+# ---------------------------------------------------------
+apiVersion: v1
+kind: Secret
+metadata:
+  name: db-secret
+type: Opaque
+data:
+  # Base64 encoded '0000'
+  password: MDAwMA==
+---
+# ---------------------------------------------------------
+# 2. POSTGRES HEADLESS SERVICE (For Pod DNS Identity)
+# ---------------------------------------------------------
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-service
+spec:
+  clusterIP: None
+  selector:
+    app: postgres
+  ports:
+    - port: 5432
+      targetPort: 5432
+---
+# ---------------------------------------------------------
+# 3. POSTGRES STATEFULSET (Stable Storage & Identity)
+# ---------------------------------------------------------
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+spec:
+  serviceName: "postgres-service"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:15-alpine
+          env:
+            - name: POSTGRES_DB
+              value: "test" # Creates the 'test' database automatically
+            - name: POSTGRES_USER
+              value: "postgres"
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-secret
+                  key: password
+          ports:
+            - containerPort: 5432
+          volumeMounts:
+            - name: postgres-data
+              mountPath: /var/lib/postgresql/data
+  volumeClaimTemplates:
+    - metadata:
+        name: postgres-data
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: 1Gi
+---
+# ---------------------------------------------------------
+# 4. KUBEKANVAS APP DEPLOYMENT
+# ---------------------------------------------------------
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kubekanvas-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kubekanvas-app
+  template:
+    metadata:
+      labels:
+        app: kubekanvas-app
+    spec:
+      containers:
+        - name: kubekanvas
+          image: kubekanvas/springbootstarter:latest # <--- REPLACE WITH YOUR IMAGE
+          ports:
+            - containerPort: 8080
+          env:
+            # Connects using the stable Headless Service DNS
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:postgresql://postgres-0.postgres-service:5432/test"
+            - name: SPRING_DATASOURCE_USERNAME
+              value: "postgres"
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-secret
+                  key: password
+            # Explicitly setting dialect for PostgreSQL
+            - name: SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT
+              value: "org.hibernate.dialect.PostgreSQLDialect"
+---
+# ---------------------------------------------------------
+# 5. APP SERVICE (ClusterIP - For Port-Forwarding Only)
+# ---------------------------------------------------------
+apiVersion: v1
+kind: Service
+metadata:
+  name: kubekanvas-ui-service
+spec:
+  type: ClusterIP
+  selector:
+    app: kubekanvas-app
+  ports:
+    - protocol: TCP
+      port: 80       # Port used in port-forward command
+      targetPort: 8080 # Port app runs on
+
