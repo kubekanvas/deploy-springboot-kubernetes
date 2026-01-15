@@ -1,35 +1,6 @@
 # Spring Boot Project: kubekanvas-SpringBootStarter
 
-A robust, enterprise-grade backend application built with **Spring Boot 3.x**. This project follows a clean, layered architecture to ensure scalability, maintainability, and clear separation of concerns.
 
----
-
-## Project Architecture
-
-This project is organized into distinct logical layers, each with a specific responsibility. This separation allows for easier testing and independent development of business logic.
-
-### 1. Presentation Layer (Controllers)
-
-* **Annotation:** `@RestController`
-* **Role:** The entry point for the application. It handles incoming HTTP requests, validates input, and maps them to the appropriate service methods.
-* **Logic:** It should **not** contain business logic. Its only job is to handle routing and return the correct HTTP status codes (e.g., `200 OK`, `404 Not Found`).
-
-### 2. Service Layer (Business Logic)
-
-* **Annotation:** `@Service`
-* **Role:** The "brain" of the application. All business rules, calculations, and complex logic reside here.
-* **Logic:** It acts as a bridge between the Controller and the Repository. It coordinates data flow and ensures that business constraints are met before data is persisted.
-
-### 3. Data Access Layer (Repositories)
-
-* **Annotation:** `@Repository`
-* **Role:** Responsible for all database interactions.
-* **Logic:** We utilize **Spring Data JPA** to interact with the database using high-level methods. This layer abstracts the complexity of SQL queries and handles the persistence of our Entities.
-
-### 4. Domain Layer (Entities/Models)
-
-* **Annotation:** `@Entity`
-* **Role:** Represents the database schema as Java objects. These classes define the structure of the data we store.
 
 ---
 
@@ -86,4 +57,5 @@ https://github.com/kubekanvas/deploy-springboot-kubernetes.git
 
 3. **Access the API:**
 The application will be running at `http://localhost:8080`
+
 
